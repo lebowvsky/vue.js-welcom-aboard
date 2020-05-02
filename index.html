@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue.js - welcome aboard challenge</title>
+  <script src="./data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>
+</head>
+<style>
+  .inline {
+    display: inline-block;
+  }
+</style>
+<body>
+  <div id="app">
+    <!-- vue content will bee injected here, tada ! -->
+    <template>
+      <div>
+        <listcolumns v-for="(elt, index) in tags" :tag="elt.title" :styletag="elt.color" :key="index"></listcolumns>
+
+        <div v-for="elt in columnsSorted" >
+          <div>
+            <h2>{{elt.title}} :</h2>
+            <ul>
+              <ticket v-for="(ticket, index) in tickets" v-if="elt.title == columns[ticket.column].title" :content="ticket.content" :column="1" :key="index"></ticket>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </template>
+  </div>
+
+  <script>
+  const { dreamTeam, columns, tags, tickets } = data; 
+  new Vue ({
+    el: '#app',
+    
+    // You should change that
+
+    data: {
+      columns: columns,
+      columnsSorted: [],
+      columnsLength: Object.keys(columns).length,
+      tags: tags,
+      tickets: tickets
+    },
+    mounted: function () {
+      this.sortColumns();
+    },
+    methods: {
+      sortColumns: function () {
+        this.columnsSorted = Object.values(columns).sort((a,b) => a.order > b.order ? 1 : -1 );
+      },
+      tagsCheck: function () {
+
+      }
+    }
+    
+
+    // Let's go baby...
+  });
+
+  Vue.component('listcolumns', {
+    props: {
+      tag: String,
+      styletag: String
+    },
+    template: `
+      <div class="inline">
+        <input type="checkbox" checked name="tag" value="tag">
+        <label :style="{color: styletag}">{{tag}}</label>
+      </div>`
+  })
+
+  Vue.component('ticket', {
+    props: {
+      content: String
+    },
+    template: `<li>{{content}}</li>`
+  })
+
+  </script>
+</body>
+</html>
