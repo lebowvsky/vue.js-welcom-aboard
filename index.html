@@ -16,25 +16,70 @@
     <!-- vue content will bee injected here, tada ! -->
     <template>
       <div>
-        <listcolumns v-for="(elt, index) in tags" :tag="elt.title" :styletag="elt.color" :key="index"></listcolumns>
-
+        <!-- <listcolumns v-for="(elt, index) in tags" :tag="elt.title" :styletag="elt.color" v-on:change="valueCheck()"  :key="index"></listcolumns><br> -->
+        <div class="inline" v-for="(elt, index) in tags" :key="index">
+          <input type="checkbox" name="elt.title" :value="elt.title" v-on:change="valueCheck()" v-model="value" checked>
+          <label :style="{color: elt.color}">{{elt.title}}</label>
+        </div>
         <div v-for="elt in columnsSorted" >
           <div>
             <h2>{{elt.title}} :</h2>
             <ul>
-              <ticket v-for="(ticket, index) in tickets" v-if="elt.title == columns[ticket.column].title" :content="ticket.content" :column="1" :key="index"></ticket>
+              <ticket v-for="(ticket, index) in tickets" v-if="elt.title == columns[ticket.column].title"  :content="ticket.content" :tagsarr="ticket.tags" :column="1" :key="index"></ticket>
             </ul>
           </div>
         </div>
-
+        <span v-if="value">Hello.................</span>
+        <span>{{value}}</span>
       </div>
     </template>
   </div>
 
   <script>
-  const { dreamTeam, columns, tags, tickets } = data; 
+  const { dreamTeam, columns, tags, tickets } = data;
+
+  let listcolumns = {
+    props: {
+      tag: String,
+      styletag: String
+    },
+    template: `
+      <div class="inline">
+        <input type="checkbox" name="tag" value="tag">
+        <label :style="{color: styletag}">{{tag}}</label>
+      </div>`
+  }
+
+  let ticket = {
+    props: {
+      content: String,
+      tagsarr: Array
+    },
+    data: function() {
+      return {
+        tagstitle: [],
+        tagscolor: []
+
+      }
+    },
+    mounted: function() {
+      this.checktags();
+    },
+    methods: {
+      checktags: function() {
+        this.tagsarr.forEach(elt => {
+          this.tagstitle.push(tags[elt].title);
+          this.tagscolor.push(tags[elt].color);
+        })
+        console.log(this.tagscolor);
+      }
+    },
+    template: `<li><span v-for="(elt, index) in this.tagstitle" :style="{color: tagscolor[index]}">{{elt}} </span>: {{content}}</li>`
+  }
+
   new Vue ({
     el: '#app',
+    components: { listcolumns, ticket },
     
     // You should change that
 
@@ -43,17 +88,19 @@
       columnsSorted: [],
       columnsLength: Object.keys(columns).length,
       tags: tags,
-      tickets: tickets
+      tickets: tickets,
+      value: [],
     },
     mounted: function () {
       this.sortColumns();
+      this.valueCheck();
     },
     methods: {
       sortColumns: function () {
         this.columnsSorted = Object.values(columns).sort((a,b) => a.order > b.order ? 1 : -1 );
       },
-      tagsCheck: function () {
-
+      valueCheck: function () {
+        console.log(this.value);
       }
     }
     
@@ -61,24 +108,7 @@
     // Let's go baby...
   });
 
-  Vue.component('listcolumns', {
-    props: {
-      tag: String,
-      styletag: String
-    },
-    template: `
-      <div class="inline">
-        <input type="checkbox" checked name="tag" value="tag">
-        <label :style="{color: styletag}">{{tag}}</label>
-      </div>`
-  })
-
-  Vue.component('ticket', {
-    props: {
-      content: String
-    },
-    template: `<li>{{content}}</li>`
-  })
+  
 
   </script>
 </body>
