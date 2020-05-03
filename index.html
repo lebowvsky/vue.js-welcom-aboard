@@ -16,16 +16,16 @@
     <!-- vue content will bee injected here, tada ! -->
     <template>
       <div>
-        <!-- <listcolumns v-for="(elt, index) in tags" :tag="elt.title" :styletag="elt.color" v-on:change="valueCheck()"  :key="index"></listcolumns><br> -->
+        <!-- <listcolumns v-for="(elt, index) in tags" :tag="elt.title" :styletag="elt.color" :key="index"></listcolumns><br> -->
         <div class="inline" v-for="(elt, index) in tags" :key="index">
-          <input type="checkbox" name="elt.title" :value="elt.title" v-on:change="valueCheck()" v-model="value" checked>
+          <input type="checkbox" name="elt.title" :value="elt.title" v-model="value" checked>
           <label :style="{color: elt.color}">{{elt.title}}</label>
         </div>
         <div v-for="elt in columnsSorted" >
           <div>
             <h2>{{elt.title}} :</h2>
             <ul>
-              <ticket v-for="(ticket, index) in tickets" v-if="elt.title == columns[ticket.column].title"  :content="ticket.content" :tagsarr="ticket.tags" :column="1" :key="index"></ticket>
+              <ticket v-for="(ticket, index) in tickets" v-if="elt.title == columns[ticket.column].title" :arrvalues="value"  :content="ticket.content" :tagsarr="ticket.tags" :key="index"></ticket>
             </ul>
           </div>
         </div>
@@ -53,17 +53,21 @@
   let ticket = {
     props: {
       content: String,
-      tagsarr: Array
+      tagsarr: Array,
+      arrvalues: Array
     },
     data: function() {
       return {
         tagstitle: [],
-        tagscolor: []
-
+        tagscolor: [],
+        appear: true
       }
     },
     mounted: function() {
       this.checktags();
+    },
+    beforeUpdate: function() {
+      console.log(this.arrvalues);
     },
     methods: {
       checktags: function() {
@@ -71,10 +75,9 @@
           this.tagstitle.push(tags[elt].title);
           this.tagscolor.push(tags[elt].color);
         })
-        console.log(this.tagscolor);
       }
     },
-    template: `<li><span v-for="(elt, index) in this.tagstitle" :style="{color: tagscolor[index]}">{{elt}} </span>: {{content}}</li>`
+    template: `<li v-if="appear"><span v-for="(elt, index) in this.tagstitle" :style="{color: tagscolor[index]}">{{elt}} </span>: {{content}}</li>`
   }
 
   new Vue ({
@@ -93,14 +96,10 @@
     },
     mounted: function () {
       this.sortColumns();
-      this.valueCheck();
     },
     methods: {
       sortColumns: function () {
         this.columnsSorted = Object.values(columns).sort((a,b) => a.order > b.order ? 1 : -1 );
-      },
-      valueCheck: function () {
-        console.log(this.value);
       }
     }
     
